@@ -1,4 +1,4 @@
 streamlit
 torch
-rdkit
+rdkit-pypi
 numpy
