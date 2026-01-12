@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 from rdkit import Chem
 from rdkit.Chem import AllChem, Draw
-from rdkit.Chem import MorganGenerator # Versión moderna
 import numpy as np
 
 # --- CONFIGURACIÓN DE LA RED NEURONAL ---
@@ -20,9 +19,9 @@ class CerebroHibrido(nn.Module):
 def smiles_to_fp(smiles):
     mol = Chem.MolFromSmiles(smiles)
     if not mol: return None
-    # Usamos el generador moderno recomendado por RDKit
-    gen = AllChem.GetMorganGenerator(radius=2, fpSize=1024)
-    return torch.tensor(gen.GetFingerprintAsNumPy(mol), dtype=torch.float)
+    # Esta es la forma universal compatible con todas las versiones de RDKit
+    fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=1024)
+    return torch.tensor(list(fp), dtype=torch.float)
 
 # --- INTERFAZ DE STREAMLIT ---
 st.set_page_config(page_title="AI Antibiotic Predictor", layout="wide")
@@ -71,4 +70,5 @@ if st.button("🚀 Ejecutar Screening"):
         elif prob > 0.4:
             st.warning("Eficacia Moderada: Requiere mayor investigación.")
         else:
+
             st.error("Baja Probabilidad: Es probable que la bacteria sea resistente.")
